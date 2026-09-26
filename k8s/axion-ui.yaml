@@ -15,7 +15,7 @@ metadata:
 
 spec:
   # Two Pods provide basic availability.
-  replicas: 1
+  replicas: 3
 
   # Rolling update avoids taking both existing Pods down
   # during an application update.
