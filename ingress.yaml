@@ -1,0 +1,38 @@
+# ============================================================
+# AXION UI - INGRESS
+# Exposes the UI through Azure Application Gateway / AGIC.
+# ============================================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: axion-ui
+  namespace: axion-app
+
+  labels:
+    app: axion-ui
+
+spec:
+  # Tells AKS to use Azure Application Gateway Ingress Controller.
+  ingressClassName: azure-application-gateway
+
+  rules:
+
+  - host: axion-ui.pawan.cloud
+
+    http:
+      paths:
+
+      - path: /
+        pathType: Prefix
+
+        backend:
+          service:
+
+            # Service receiving traffic from Application Gateway.
+            name: axion-ui-svc
+
+            port:
+              # Service port, not container port.
+              number: 80

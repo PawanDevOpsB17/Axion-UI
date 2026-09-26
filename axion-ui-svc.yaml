@@ -1,0 +1,35 @@
+# ============================================================
+# AXION UI - SERVICE
+# Exposes the UI internally inside the Kubernetes cluster.
+# Application Gateway / Ingress will access this Service.
+# ============================================================
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: axion-ui-svc
+  namespace: axion-app
+
+  labels:
+    app: axion-ui
+
+spec:
+  # ClusterIP makes the Service internal to the cluster.
+  # External access will happen through Application Gateway.
+  type: ClusterIP
+
+  # Traffic will be sent only to Pods having this label.
+  selector:
+    app: axion-ui
+
+  ports:
+  - name: http
+
+    # Port exposed by Kubernetes Service.
+    port: 80
+
+    # Container port to which Service forwards traffic.
+    targetPort: http
+
+    protocol: TCP

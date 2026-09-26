@@ -1,0 +1,103 @@
+# ============================================================
+# AXION UI - DEPLOYMENT
+# Runs the React application served through Nginx.
+# ============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: axion-ui
+  namespace: axion-app
+
+  labels:
+    app: axion-ui
+
+spec:
+  # Two Pods provide basic availability.
+  replicas: 1
+
+  # Rolling update avoids taking both existing Pods down
+  # during an application update.
+  strategy:
+    type: RollingUpdate
+    
+    rollingUpdate:
+      # At least one existing Pod should remain available.
+      maxUnavailable: 0
+
+      # One additional Pod can be created during update.
+      maxSurge: 1
+
+  selector:
+    matchLabels:
+      app: axion-ui
+
+  template:
+    metadata:
+      labels:
+        app: axion-ui
+
+    spec:
+      containers:
+
+      - name: axion-ui
+
+        # React UI image served using Nginx.
+        image: pawanks93/axion-ui:v33
+        
+
+        # Use local cached image if the same image is already present.
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - name: http
+
+          # Nginx listens on port 80.
+          containerPort: 80
+
+          protocol: TCP
+
+        resources:
+
+          # Minimum resources requested from AKS.
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          # Maximum resources this container can consume.
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        # Checks whether Nginx/UI is ready to receive traffic.
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        # Checks whether the container is still alive.
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        # Keep this disabled for now.
+        # Your previous Nginx image had permission problems
+        # when running with restrictive security settings.
+        #
+        # securityContext:
+        #   allowPrivilegeEscalation: false
+        #   capabilities:
+        #     drop:
+        #     - ALL
